@@ -261,7 +261,7 @@ app.get('/counter/:callback', function (req, res) {
   Promise.all([promise_log, promise_pv, promise_uv]).then((vals) => {
     page_pv += 1;
     site_pv += 1;
-    res.type('application/json');
+    res.type('application/javascript');
     var a = {"site_uv": site_uv, "site_pv": site_pv,"page_pv": page_pv, "version": "0.0.1"};
     return res.send("try{" + cbname + "(" + JSON.stringify(a) + ");}catch(e){}");
   }).catch((e) => {
