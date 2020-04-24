@@ -157,7 +157,7 @@ app.get('/counter/:callback', function (req, res) {
   // do not need trim(.replace(/^\s+|\s+$/gm,''))
   var protocol = r[1];
   var host = r[2];
-  var path = r.length > 3 ? r[3] : "/";
+  var path = r.length > 3 ? r[3].replace(/\/\/+/g, "/") : "/";
 
   if (!check_sec_host(protocol + "://" + host)) {
     return res.status(403).end("<h1>Where are you from ?</h1>");
