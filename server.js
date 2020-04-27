@@ -73,9 +73,42 @@ app.get('/ip', function (req, res) {
   res.json({"json": ip});
 });
 
-app.get('/cnt_db_init', function (req, res) {
-  // for init posts in db
-  res.send("waiting..");
+app.get('/db_init/:appKey', async function (req, res) {
+  if (!req.params.appKey || req.params.appKey != process.env.LEANCLOUD_APP_KEY) {
+    return res.status(403).end("<h1>Forbidden: invalid key!</h1>");
+  }
+  let if_ok = false;
+
+  let createDb = async function (clazzName) {
+    const Obj = AV.Object.extend(clazzName);
+    const obj = new Obj();
+    await obj.save().then(async (rr) => {
+
+      if_ok = true;
+      console.log(`create ${clazzName} obj id:${rr.id}`);
+      await rr.destroy();
+      console.log(`delete ${clazzName} obj id:${rr.id}`);
+      if_ok = true;
+    }).catch((e) => {
+      console.log(`create object ${clazzName} failed: ${e}`);
+      if_ok = false;
+      return Promise.reject(e);
+    });
+  }
+  if_ok = false;
+  await createDb("Counter_uv");
+  if (!if_ok) {
+    return res.status(500).end("<h1>create failed.</h1>");
+  }
+
+  if_ok = false;
+  await createDb("Counter_pv");
+  if (!if_ok) {
+    return res.status(500).end("<h1>create failed.</h1>");
+  }
+
+  return res.send("<h1> Success! </h1>");
+  // TODO init from json file, create pv obj for every page
 });
 
 function check_sec_host(host/*, origin */) {
